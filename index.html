@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brand Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Figtree:wght@300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #FAF6EC;
+    --paper-deep:   #F1EBD9;
+    --paper-hover:  #EDE5CF;
+    --card:         #FFFFFF;
+    --ink:          #1A1814;
+    --ink-soft:     #4A4438;
+    --ink-mute:     #8B8472;
+    --ink-faint:    #B8B09A;
+    --rule:         #E4DDC9;
+    --rule-strong:  #D4CAB0;
+    --gold:         #B08A3E;
+    --gold-bright:  #D4A94C;
+    --gold-glow:    rgba(212, 169, 76, 0.18);
+    --slate:        #4A5560;
+
+    --f-display: "Fraunces", "Times New Roman", serif;
+    --f-body:    "Figtree", -apple-system, sans-serif;
+    --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+    --rad-sm: 4px;
+    --rad-md: 8px;
+    --rad-lg: 14px;
+
+    --shadow-sm: 0 1px 2px rgba(26, 24, 20, 0.04), 0 2px 8px rgba(26, 24, 20, 0.04);
+    --shadow-md: 0 2px 4px rgba(26, 24, 20, 0.05), 0 8px 24px rgba(26, 24, 20, 0.08);
+    --shadow-lg: 0 4px 12px rgba(26, 24, 20, 0.06), 0 20px 60px rgba(26, 24, 20, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--f-body);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* Paper texture — subtle grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle at 1px 1px, rgba(26, 24, 20, 0.025) 1px, transparent 0);
+    background-size: 3px 3px;
+    z-index: 1;
+    mix-blend-mode: multiply;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ─────────────────────────── HEADER ─────────────────────────── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 246, 236, 0.88);
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .header-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .brand-mark .mark {
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    border-radius: 3px;
+    position: relative;
+    transform: rotate(45deg);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .brand-mark .mark::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    background: var(--paper);
+    border-radius: 1px;
+  }
+  .brand-mark:hover .mark { transform: rotate(135deg); }
+
+  .brand-mark .name {
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    font-variation-settings: "SOFT" 30, "WONK" 0;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nav-item {
+    position: relative;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: var(--rad-sm);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-item:hover { color: var(--ink); background: var(--paper-hover); }
+  .nav-item.active { color: var(--ink); }
+  .nav-item.active::after {
+    content: "";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 2px;
+    height: 1.5px;
+    background: var(--gold);
+  }
+
+  .nav-item .caret {
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translate(-2px, -2px);
+    opacity: 0.6;
+  }
+
+  /* Dropdown for Overview + Quick links */
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 240px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--rad-md);
+    box-shadow: var(--shadow-md);
+    padding: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: all 0.2s ease;
+  }
+  .nav-item:hover .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .dropdown a {
+    display: block;
+    padding: 9px 12px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    border-radius: var(--rad-sm);
+    transition: all 0.15s ease;
+  }
+  .dropdown a:hover {
+    background: var(--paper);
+    color: var(--ink);
+    padding-left: 16px;
+  }
+
+  .search-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .search-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .search-btn svg { width: 15px; height: 15px; }
+
+  /* ─────────────────────────── LAYOUT ─────────────────────────── */
+  .main {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─────────────────────────── HOMEPAGE ─────────────────────────── */
+  .home {
+    padding: 80px 0 120px;
+  }
+
+  .home-hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 2px;
+    margin-bottom: 80px;
+    background: var(--rule);
+  }
+
+  .hero-tile {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 420px;
+    display: flex;
+    align-items: flex-end;
+    padding: 40px;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-tile.dark {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .hero-tile.dark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(212, 169, 76, 0.12) 0%, transparent 60%),
+      linear-gradient(135deg, transparent 40%, rgba(212, 169, 76, 0.06) 100%);
+  }
+
+  .hero-tile.light {
+    background: var(--paper-deep);
+    color: var(--ink);
+  }
+  .hero-tile.light::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(176, 138, 62, 0.1) 0%, transparent 60%);
+  }
+
+  .hero-tile:hover { filter: brightness(1.06); }
+
+  .hero-tile-content {
+    position: relative;
+    z-index: 2;
+    max-width: 380px;
+  }
+
+  .hero-tile .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 20px;
+  }
+
+  .hero-tile h2 {
+    font-family: var(--f-display);
+    font-weight: 300;
+    font-size: clamp(42px, 5vw, 68px);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+    font-variation-settings: "SOFT" 40, "WONK" 1;
+  }
+
+  .hero-tile h2 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold-bright);
+  }
+  .hero-tile.light h2 em { color: var(--gold); }
+
+  .hero-tile .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding-bottom: 3px;
+    border-bottom: 1px solid currentColor;
+    transition: gap 0.3s ease;
+  }
+  .hero-tile:hover .cta { gap: 16px; }
+
+  /* Decorative geometric shape */
+  .hero-tile.dark .shape {
+    position: absolute;
+    top: 50%;
+    right: -80px;
+    transform: translateY(-50%) rotate(45deg);
+    width: 320px;
+    height: 320px;
+    border: 1px solid rgba(212, 169, 76, 0.2);
+    z-index: 1;
+  }
+  .hero-tile.dark .shape::before {
+    content: "";
+    position: absolute;
+    inset: 30px;
+    border: 1px solid rgba(212, 169, 76, 0.14);
+  }
+  .hero-tile.dark .shape::after {
+    content: "";
+    position: absolute;
+    inset: 60px;
+    border: 1px solid rgba(212, 169, 76, 0.08);
+  }
+
+  /* Section headings */
+  .section-label {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-label .num {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .section-label h3 {
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    font-variation-settings: "SOFT" 30;
+  }
+
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 72px;
+  }
+
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--rad-md);
+    padding: 28px 28px 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .tile::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--rule-strong);
+  }
+  .tile:hover::before { opacity: 1; }
+
+  .tile-icon {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--rule);
+    border-radius: var(--rad-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--ink-soft);
+    transition: all 0.3s ease;
+  }
+  .tile:hover .tile-icon {
+    background: var(--ink);
+    color: var(--gold-bright);
+    border-color: var(--ink);
+  }
+  .tile-icon svg { width: 18px; height: 18px; }
+
+  .tile h4 {
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    font-variation-settings: "SOFT" 20;
+  }
+  .tile p {
+    font-size: 13px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+  }
+
+  .tile-arrow {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    color: var(--ink-faint);
+    transition: all 0.3s ease;
+  }
+  .tile:hover .tile-arrow {
+    color: var(--gold);
+    transform: translate(2px, -2px);
+  }
+
+  /* ─────────────────────────── SECTION PAGES ─────────────────────────── */
+  .section-page {
+    display: none;
+    padding: 56px 0 120px;
+    grid-template-columns: 260px 1fr;
+    gap: 72px;
+  }
+  .section-page.active { display: grid; }
+
+  /* Sidebar */
+  .sidebar {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 8px;
+    padding-bottom: 24px;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 2px; }
+
+  .sidebar-group { margin-bottom: 28px; }
+  .sidebar-group-label {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .sidebar-item {
+    display: block;
+    padding: 7px 0 7px 12px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    border-left: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .sidebar-item:hover {
+    color: var(--ink);
+    border-left-color: var(--rule-strong);
+    padding-left: 16px;
+  }
+  .sidebar-item.active {
+    color: var(--ink);
+    border-left-color: var(--gold);
+    font-weight: 500;
+  }
+  .sidebar-item.child {
+    padding-left: 24px;
+    font-size: 13px;
+    color: var(--ink-mute);
+  }
+  .sidebar-item.child:hover { padding-left: 28px; }
+  .sidebar-item.child.active { padding-left: 24px; color: var(--ink); font-weight: 500; }
+
+  /* Content */
+  .content { max-width: 760px; }
+
+  .crumb {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .crumb .sep { color: var(--ink-faint); }
+
+  .content h1 {
+    font-family: var(--f-display);
+    font-weight: 300;
+    font-size: clamp(40px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 28px;
+    font-variation-settings: "SOFT" 40, "WONK" 1;
+  }
+
+  .content .lead {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 48px;
+    max-width: 620px;
+  }
+
+  .content-rule {
+    height: 1px;
+    background: var(--rule);
+    margin: 40px 0;
+  }
+
+  .content h2 {
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin: 48px 0 16px;
+    font-variation-settings: "SOFT" 20;
+  }
+
+  .content p {
+    margin-bottom: 18px;
+    color: var(--ink-soft);
+    line-height: 1.72;
+  }
+
+  /* Placeholder blocks */
+  .placeholder-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--rad-md);
+    padding: 32px;
+    margin: 32px 0;
+    position: relative;
+  }
+  .placeholder-card .corner {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .placeholder-card h3 {
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: var(--rad-md);
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .spec-cell {
+    background: var(--card);
+    padding: 24px 28px;
+  }
+  .spec-cell .label {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+  }
+  .spec-cell .value {
+    font-family: var(--f-display);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .prev-next {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-top: 72px;
+  }
+  .prev-next a {
+    background: var(--paper);
+    padding: 24px 28px;
+    display: block;
+    transition: background 0.2s ease;
+  }
+  .prev-next a:hover { background: var(--paper-hover); }
+  .prev-next a.next { text-align: right; }
+  .prev-next .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .prev-next .title {
+    font-family: var(--f-display);
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  /* ─────────────────────────── FOOTER ─────────────────────────── */
+  .footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 40px;
+    padding: 40px 48px 48px;
+    background: var(--paper-deep);
+    position: relative;
+    z-index: 2;
+  }
+  .footer-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer p {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+
+  /* ─────────────────────────── ANIMATIONS ─────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .home > *, .section-page.active > * {
+    animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .home > *:nth-child(1) { animation-delay: 0.05s; }
+  .home > *:nth-child(2) { animation-delay: 0.12s; }
+  .home > *:nth-child(3) { animation-delay: 0.19s; }
+  .home > *:nth-child(4) { animation-delay: 0.26s; }
+  .home > *:nth-child(5) { animation-delay: 0.33s; }
+
+  /* ─────────────────────────── RESPONSIVE ─────────────────────────── */
+  @media (max-width: 1100px) {
+    .main, .header-inner, .footer { padding-left: 32px; padding-right: 32px; }
+    .home-hero { grid-template-columns: 1fr; }
+    .tile-grid { grid-template-columns: repeat(2, 1fr); }
+    .section-page { grid-template-columns: 220px 1fr; gap: 48px; }
+  }
+  @media (max-width: 760px) {
+    .header-inner { padding: 14px 20px; gap: 20px; }
+    .main, .footer { padding-left: 20px; padding-right: 20px; }
+    .nav { display: none; }
+    .tile-grid { grid-template-columns: 1fr; }
+    .section-page { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; }
+    .spec-grid, .prev-next { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#/" class="brand-mark" data-route="home">
+      <span class="mark"></span>
+      <span class="name">Brand Portal</span>
+    </a>
+
+    <nav class="nav">
+      <div class="nav-item" data-route="overview">
+        Overview
+        <span class="caret"></span>
+        <div class="dropdown">
+          <a href="#/overview/brand-story">Brand story</a>
+          <a href="#/overview/brand-pillars">Brand pillars</a>
+          <a href="#/overview/mission-vision">Mission &amp; vision</a>
+          <a href="#/overview/whats-new">What's new</a>
+        </div>
+      </div>
+      <a href="#/how-we-sound-and-write/one-voice" class="nav-item" data-route="how-we-sound-and-write">How we sound and write</a>
+      <a href="#/visual-guidelines/our-logo" class="nav-item" data-route="visual-guidelines">Visual guidelines</a>
+      <a href="#/tools-and-templates/email-signatures" class="nav-item" data-route="tools-and-templates">Tools and templates</a>
+      <div class="nav-item" data-route="quick-links">
+        Quick links
+        <span class="caret"></span>
+        <div class="dropdown">
+          <a href="#/quick-links/asset-library">Asset library</a>
+          <a href="#/quick-links/request-design">Request design work</a>
+          <a href="#/quick-links/brand-training">Brand training</a>
+          <a href="#/quick-links/newsletter">Newsletter archive</a>
+        </div>
+      </div>
+      <a href="#/support" class="nav-item" data-route="support">Support</a>
+    </nav>
+
+    <button class="search-btn" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="m20 20-3.5-3.5"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ═══════════════════ HOMEPAGE ═══════════════════ -->
+<section class="home" id="page-home">
+  <div class="home-hero">
+    <a href="#/visual-guidelines/our-logo" class="hero-tile dark">
+      <div class="shape"></div>
+      <div class="hero-tile-content">
+        <div class="eyebrow">001 — Start here</div>
+        <h2>Think <em>forward.</em></h2>
+        <div class="cta">
+          Brand basics
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </div>
+      </div>
+    </a>
+    <a href="#/support" class="hero-tile light">
+      <div class="hero-tile-content">
+        <div class="eyebrow">002 — Help</div>
+        <h2>Brand <em>support.</em></h2>
+        <div class="cta">
+          Get in touch
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label">
+    <span class="num">§ 01</span>
+    <h3>Colleague essentials</h3>
+  </div>
+  <div class="tile-grid">
+    <a href="#/tools-and-templates/business-cards" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M7 11h6M7 15h4"/></svg></div>
+        <h4>Business cards</h4>
+      </div>
+      <p>Order and print templates for all regions</p>
+    </a>
+    <a href="#/tools-and-templates/email-signatures" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l9 6 9-6M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M3 8l2-3h14l2 3"/></svg></div>
+        <h4>Email signatures</h4>
+      </div>
+      <p>Signature builder and out-of-office messages</p>
+    </a>
+    <a href="#/tools-and-templates/powerpoint" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h4>Presentation templates</h4>
+      </div>
+      <p>Master deck and extended slide library</p>
+    </a>
+  </div>
+
+  <div class="section-label">
+    <span class="num">§ 02</span>
+    <h3>Popular asset libraries</h3>
+  </div>
+  <div class="tile-grid">
+    <a href="#/visual-guidelines/icons" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <h4>Icon library</h4>
+      </div>
+      <p>Full set in SVG and font formats</p>
+    </a>
+    <a href="#/visual-guidelines/photography" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></div>
+        <h4>Photography library</h4>
+      </div>
+      <p>Curated image collection by theme</p>
+    </a>
+    <a href="#/visual-guidelines/pictograms" class="tile">
+      <div class="tile-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      <div>
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div>
+        <h4>Pictogram library</h4>
+      </div>
+      <p>Conceptual illustrations and symbols</p>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION PAGES ═══════════════════ -->
+<section class="section-page" id="page-section">
+  <aside class="sidebar" id="sidebar"></aside>
+  <article class="content" id="content"></article>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p>© Brand Portal — Template</p>
+    <p>Editorial system · Paper &amp; Ink</p>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════ SITE STRUCTURE DATA ═══════════════════ */
+const SITE = {
+  'overview': {
+    label: 'Overview',
+    groups: [
+      { label: 'Brand foundation', items: [
+        { id: 'brand-story', title: 'Brand story' },
+        { id: 'brand-pillars', title: 'Brand pillars' },
+        { id: 'mission-vision', title: 'Mission & vision' },
+      ]},
+      { label: 'Updates', items: [
+        { id: 'whats-new', title: "What's new" },
+      ]},
+    ]
+  },
+
+  'how-we-sound-and-write': {
+    label: 'How we sound and write',
+    groups: [
+      { label: 'Intro', items: [
+        { id: 'one-voice', title: 'One voice for our global business' },
+      ]},
+      { label: 'Tone of voice', items: [
+        { id: 'understanding-tov', title: 'Understanding tone of voice' },
+        { id: 'tov-principles', title: 'Our tone of voice principles' },
+        { id: 'principle-one', title: 'Principle one: Intelligent', child: true },
+        { id: 'principle-two', title: 'Principle two: Approachable', child: true },
+        { id: 'principle-three', title: 'Principle three: Confident', child: true },
+      ]},
+      { label: 'Writing style guide', items: [
+        { id: 'writing-guidelines', title: 'Writing guidelines' },
+        { id: 'storytelling', title: 'Storytelling' },
+        { id: 'getting-started', title: 'Getting started' },
+        { id: 'company-description', title: 'Company description' },
+        { id: 'glossary', title: 'Glossary / Key terms' },
+      ]},
+      { label: 'Naming & trademark guidelines', items: [
+        { id: 'approved-names', title: 'List of approved names' },
+        { id: 'trademark-use', title: 'Trademark use guidelines' },
+      ]},
+    ]
+  },
+
+  'visual-guidelines': {
+    label: 'Visual guidelines',
+    groups: [
+      { label: 'Logo suite', items: [
+        { id: 'our-logo', title: 'Our logo' },
+        { id: 'download-logo', title: 'Download logo', child: true },
+        { id: 'logo-compositions', title: 'Logo compositions', child: true },
+        { id: 'logo-versions', title: 'Logo versions', child: true },
+        { id: 'logo-usage', title: 'Logo usage', child: true },
+        { id: 'logo-donts', title: "Don'ts", child: true },
+        { id: 'logo-language', title: 'Logo – language variations' },
+      ]},
+      { label: 'Essentials', items: [
+        { id: 'tagline', title: 'Tagline' },
+        { id: 'tagline-lockups', title: 'Tagline lockups', child: true },
+        { id: 'tagline-donts', title: "Don'ts", child: true },
+        { id: 'typography', title: 'Typography' },
+        { id: 'download-typeface', title: 'Download typeface', child: true },
+        { id: 'primary-typeface', title: 'Primary brand typeface', child: true },
+        { id: 'secondary-typefaces', title: 'Secondary & substitute typefaces', child: true },
+        { id: 'typeface-usage', title: 'Typeface usage', child: true },
+        { id: 'local-typefaces', title: 'Local language typefaces', child: true },
+      ]},
+      { label: 'Color', items: [
+        { id: 'color-overview', title: 'Overview' },
+        { id: 'color-purpose', title: 'Color purpose', child: true },
+        { id: 'color-theory', title: 'Color theory', child: true },
+        { id: 'color-balance', title: 'Color balance', child: true },
+        { id: 'dark-theme', title: 'Dark theme examples', child: true },
+        { id: 'light-theme', title: 'Light theme examples', child: true },
+        { id: 'color-palettes', title: 'Color palettes' },
+        { id: 'color-use', title: 'Color use' },
+        { id: 'color-accessibility', title: 'Accessibility', child: true },
+        { id: 'color-combinations', title: 'Color combinations', child: true },
+        { id: 'titles-large-text', title: 'Titles & large text', child: true },
+        { id: 'callout-boxes', title: 'Text call-out boxes', child: true },
+        { id: 'color-icons', title: 'Icons', child: true },
+        { id: 'gradients', title: 'Gradients' },
+        { id: 'available-gradients', title: 'Available gradients', child: true },
+        { id: 'gradient-backgrounds', title: 'Gradient backgrounds', child: true },
+        { id: 'applying-gradients', title: 'Applying gradients', child: true },
+        { id: 'gradients-typography', title: 'Gradients & typography', child: true },
+      ]},
+      { label: 'Graphic suite', items: [
+        { id: 'icons', title: 'Icons' },
+        { id: 'pictograms', title: 'Pictograms' },
+        { id: 'patterns', title: 'Patterns' },
+        { id: 'patterns-download', title: 'Download', child: true },
+        { id: 'patterns-colors', title: 'Available colors', child: true },
+        { id: 'using-patterns', title: 'Using patterns', child: true },
+        { id: 'cropping-patterns', title: 'Cropping patterns', child: true },
+        { id: 'positioning-patterns', title: 'Positioning patterns', child: true },
+        { id: 'patterns-typography', title: 'Typography & color', child: true },
+      ]},
+      { label: 'Illustration', items: [
+        { id: 'illustration-overview', title: 'Overview' },
+        { id: 'tool-kit', title: 'Tool kit' },
+        { id: 'illustration-color', title: 'Use of color', child: true },
+        { id: 'art-direction', title: 'Art direction principles', child: true },
+        { id: 'toolkit-elements', title: 'Toolkit elements', child: true },
+        { id: 'scaling-elements', title: 'Scaling of elements', child: true },
+        { id: 'scaling-grid', title: 'Scaling from the grid', child: true },
+        { id: 'illustration-donts', title: "Don'ts", child: true },
+      ]},
+      { label: 'Photography', items: [
+        { id: 'photography', title: 'Photography' },
+        { id: 'photography-treatments', title: 'Photography treatments' },
+        { id: 'treatments-overview', title: 'Overview', child: true },
+        { id: 'transformation', title: 'Transformation', child: true },
+        { id: 'perspectives', title: 'Perspectives', child: true },
+        { id: 'reflection', title: 'Reflection', child: true },
+        { id: 'fifty-split', title: '50/50 split', child: true },
+      ]},
+      { label: 'Data visualization', items: [
+        { id: 'dataviz-overview', title: 'Overview' },
+        { id: 'dataviz-color', title: 'Color' },
+        { id: 'download-swatches', title: 'Download swatches', child: true },
+        { id: 'color-values', title: 'Color values & palettes', child: true },
+        { id: 'how-to-use-color', title: 'How to use color', child: true },
+        { id: 'dataviz-accessibility', title: 'Accessibility' },
+        { id: 'infographic-documents', title: 'Infographic documents' },
+      ]},
+    ]
+  },
+
+  'tools-and-templates': {
+    label: 'Tools and templates',
+    groups: [
+      { label: 'Colleague assets', items: [
+        { id: 'email-signatures', title: 'Email signatures & OOO' },
+        { id: 'es-guidelines', title: 'Guidelines', child: true },
+        { id: 'es-examples', title: 'Examples', child: true },
+        { id: 'es-template', title: 'Template download', child: true },
+        { id: 'es-replies', title: 'Replies / forwards', child: true },
+        { id: 'es-instructions', title: 'Instructions', child: true },
+        { id: 'out-of-office', title: 'Out-of-office messages', child: true },
+        { id: 'screen-backgrounds', title: 'Screen backgrounds' },
+        { id: 'teams-image-bg', title: 'Teams image backgrounds', child: true },
+        { id: 'teams-pattern-bg', title: 'Teams pattern backgrounds', child: true },
+        { id: 'lock-screen', title: 'Lock screen', child: true },
+        { id: 'business-cards', title: 'Business cards' },
+        { id: 'powerpoint', title: 'PowerPoint' },
+        { id: 'ppt-templates', title: 'PowerPoint templates', child: true },
+        { id: 'ppt-training', title: 'Training & guidance', child: true },
+        { id: 'ppt-color', title: 'Color theory', child: true },
+        { id: 'ppt-samples', title: 'Before & after samples', child: true },
+        { id: 'ppt-best-practices', title: 'Best practices', child: true },
+        { id: 'ppt-donts', title: "Don'ts", child: true },
+        { id: 'word-documents', title: 'Word documents' },
+        { id: 'excel', title: 'Excel' },
+        { id: 'self-shooting', title: 'Self-shooting profile photography' },
+        { id: 'digital-signage', title: 'Internal digital signage' },
+        { id: 'linkedin-banners', title: 'LinkedIn banners' },
+      ]},
+      { label: 'Marketing collateral', items: [
+        { id: 'collateral-overview', title: 'Overview' },
+        { id: 'cover-styles', title: 'Cover styles' },
+        { id: 'writing-covers', title: 'Writing copy for covers' },
+        { id: 'self-serve', title: 'Self-serve templates' },
+      ]},
+      { label: 'Marketing material', items: [
+        { id: 'email-strategy', title: 'Email strategy' },
+        { id: 'internal-emails', title: 'Internal emails', child: true },
+        { id: 'external-emails', title: 'External emails', child: true },
+        { id: 'product-emails', title: 'Product email templates', child: true },
+        { id: 'marketing-emails', title: 'Marketing emails & landing pages' },
+        { id: 'events', title: 'Events' },
+        { id: 'merchandise', title: 'Merchandise' },
+        { id: 'digital-ads', title: 'Digital ads' },
+        { id: 'webinar-toolkit', title: 'Webinar video tool kit' },
+        { id: 'webinar-download', title: 'Download the toolkit', child: true },
+        { id: 'title-slide', title: 'Title slide', child: true },
+        { id: 'speakers-details', title: 'Speakers details', child: true },
+        { id: 'presenting-content', title: 'Presenting content', child: true },
+      ]},
+      { label: 'Social media', items: [
+        { id: 'social-overview', title: 'Overview' },
+        { id: 'social-post-templates', title: 'Social post templates', child: true },
+        { id: 'preparing-content', title: 'Preparing content', child: true },
+        { id: 'choosing-image', title: 'Choosing an image', child: true },
+        { id: 'campaigns-bespoke', title: 'Campaigns & bespoke content', child: true },
+        { id: 'platforms-formats', title: 'Platforms & formats', child: true },
+        { id: 'organic-templates', title: 'Organic templates' },
+        { id: 'organic-hr', title: 'Organic HR templates' },
+        { id: 'paid-templates', title: 'Paid templates' },
+      ]},
+      { label: 'Enterprise', items: [
+        { id: 'office-branding', title: 'Office branding principles' },
+        { id: 'third-party', title: 'Third-party platform branding' },
+        { id: 'video-content', title: 'Video content' },
+      ]},
+    ]
+  },
+
+  'quick-links': {
+    label: 'Quick links',
+    groups: [
+      { label: 'Resources', items: [
+        { id: 'asset-library', title: 'Asset library' },
+        { id: 'request-design', title: 'Request design work' },
+        { id: 'brand-training', title: 'Brand training' },
+        { id: 'newsletter', title: 'Newsletter archive' },
+      ]},
+    ]
+  },
+
+  'support': {
+    label: 'Support',
+    groups: [
+      { label: 'Get in touch', items: [
+        { id: 'support', title: 'Brand support' },
+        { id: 'contact-design', title: 'Contact the design team' },
+        { id: 'faqs', title: 'FAQs' },
+      ]},
+    ]
+  },
+};
+
+/* ═══════════════════ ROUTING + RENDER ═══════════════════ */
+function parseHash() {
+  const h = location.hash.replace(/^#\/?/, '');
+  if (!h || h === '' || h === '/') return { section: null };
+  const [section, page] = h.split('/');
+  return { section, page };
+}
+
+function firstPageOf(sectionKey) {
+  const s = SITE[sectionKey];
+  if (!s) return null;
+  for (const g of s.groups) {
+    for (const it of g.items) if (!it.child) return it.id;
+    if (s.groups[0].items.length) return s.groups[0].items[0].id;
+  }
+  return null;
+}
+
+function findItem(sectionKey, pageId) {
+  const s = SITE[sectionKey];
+  if (!s) return null;
+  for (const g of s.groups) {
+    for (const it of g.items) if (it.id === pageId) return { group: g, item: it };
+  }
+  return null;
+}
+
+function renderSidebar(sectionKey, activePage) {
+  const s = SITE[sectionKey];
+  if (!s) return '';
+  return s.groups.map(g => `
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">${g.label}</div>
+      ${g.items.map(it => `
+        <a href="#/${sectionKey}/${it.id}" class="sidebar-item ${it.child ? 'child' : ''} ${it.id === activePage ? 'active' : ''}">
+          ${it.title}
+        </a>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function getAdjacentPages(sectionKey, pageId) {
+  const s = SITE[sectionKey];
+  const flat = [];
+  s.groups.forEach(g => g.items.forEach(it => flat.push({ ...it, group: g.label })));
+  const idx = flat.findIndex(x => x.id === pageId);
+  return { prev: flat[idx - 1], next: flat[idx + 1] };
+}
+
+function renderContent(sectionKey, pageId) {
+  const s = SITE[sectionKey];
+  const found = findItem(sectionKey, pageId);
+  if (!s || !found) return '';
+  const { group, item } = found;
+  const { prev, next } = getAdjacentPages(sectionKey, pageId);
+
+  return `
+    <div class="crumb">
+      <span>${s.label}</span>
+      <span class="sep">/</span>
+      <span>${group.label}</span>
+    </div>
+    <h1>${item.title}</h1>
+    <p class="lead">
+      This is a template placeholder for the <em>${item.title.toLowerCase()}</em> page. Replace this section with your brand's real content, guidelines, and downloadable assets.
+    </p>
+
+    <div class="content-rule"></div>
+
+    <h2>Overview</h2>
+    <p>Every page in this portal follows the same structure: a clear heading, a short lead paragraph that sets context, then the substantive guidance or assets beneath. Keep the tone consistent, the paragraphs short, and give designers exactly what they need without making them scroll for it.</p>
+    <p>This area is where you place your principles, do's and don'ts, downloadable files, or visual examples. The grid below shows one way to surface quick-reference specifications.</p>
+
+    <div class="spec-grid">
+      <div class="spec-cell">
+        <div class="label">Category</div>
+        <div class="value">${group.label}</div>
+      </div>
+      <div class="spec-cell">
+        <div class="label">Section</div>
+        <div class="value">${s.label}</div>
+      </div>
+      <div class="spec-cell">
+        <div class="label">Page ID</div>
+        <div class="value" style="font-family: var(--f-mono); font-size: 14px;">${item.id}</div>
+      </div>
+      <div class="spec-cell">
+        <div class="label">Status</div>
+        <div class="value" style="color: var(--gold);">Template</div>
+      </div>
+    </div>
+
+    <h2>Guidance</h2>
+    <p>Use this placeholder as a starting point. Swap in your own prose, imagery, callouts, and downloads. The sidebar on the left reflects the full information architecture, and the previous/next links below help users move through the section sequentially.</p>
+
+    <div class="placeholder-card">
+      <span class="corner">Example</span>
+      <h3>A callout block</h3>
+      <p style="margin-bottom: 0; color: var(--ink-soft);">Callout cards like this one are useful for highlighting rules, warnings, or linked resources. Use them sparingly so they keep their signal value.</p>
+    </div>
+
+    <div class="prev-next">
+      ${prev ? `<a class="prev" href="#/${sectionKey}/${prev.id}">
+        <div class="eyebrow">← ${prev.group}</div>
+        <div class="title">${prev.title}</div>
+      </a>` : `<div></div>`}
+      ${next ? `<a class="next" href="#/${sectionKey}/${next.id}">
+        <div class="eyebrow">${next.group} →</div>
+        <div class="title">${next.title}</div>
+      </a>` : `<div></div>`}
+    </div>
+  `;
+}
+
+function render() {
+  const { section, page } = parseHash();
+  const home = document.getElementById('page-home');
+  const sec = document.getElementById('page-section');
+
+  // Reset nav active state
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  if (!section) {
+    home.style.display = 'block';
+    sec.classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    return;
+  }
+
+  if (!SITE[section]) {
+    location.hash = '#/';
+    return;
+  }
+
+  // Set active nav
+  const navEl = document.querySelector(`.nav-item[data-route="${section}"]`);
+  if (navEl) navEl.classList.add('active');
+
+  // Resolve page — default to first if missing
+  const pageId = page || firstPageOf(section);
+  if (!findItem(section, pageId)) {
+    location.hash = `#/${section}/${firstPageOf(section)}`;
+    return;
+  }
+
+  home.style.display = 'none';
+  sec.classList.add('active');
+  document.getElementById('sidebar').innerHTML = renderSidebar(section, pageId);
+  document.getElementById('content').innerHTML = renderContent(section, pageId);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>
